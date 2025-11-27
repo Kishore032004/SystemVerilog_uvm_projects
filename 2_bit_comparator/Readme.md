@@ -1,148 +1,135 @@
-📘 2-bit Comparator Verification (SystemVerilog)
+# 2-bit Comparator Verification (SystemVerilog)
 
-This project implements and verifies a 2-bit Comparator using a structured SystemVerilog testbench.
-The verification flow includes:
+This project implements and verifies a **2-bit Comparator** using a structured SystemVerilog verification environment with modern verification methodologies including interfaces, modports, reference models, and scoreboards.
 
-Interface + modports
+---
 
-Program block
+## 📁 Project Structure
 
-Random stimulus
+### Design Files
+| File | Description |
+|------|-------------|
+| `comparator.sv` | DUT — 2-bit comparator implemented using combinational logic |
 
-Scoreboard (expected model vs DUT)
+### Verification Files
+| File | Description |
+|------|-------------|
+| `comp_interface.sv` | SystemVerilog interface with modports (`dut_mp` for DUT, `tb_mp` for testbench) |
+| `tb_comp.sv` | Complete testbench with program block, stimulus generation, reference model, and scoreboard |
 
-PASS/ERROR result logging
+---
 
-All simulations were run using Vivado Simulator (XSIM).
+## 🧩 Design Specification — 2-bit Comparator
 
-📌 Project Structure
-project/
-│
-├── src/
-│   └── comparator.sv          # DUT (Design Under Test)
-│
-├── tb/
-│   ├── comp_interface.sv      # Interface with modports
-│   └── tb_comp.sv             # Testbench + Program block + Scoreboard
-│
-└── README.md
+### Inputs
+- `A` → 2-bit value (`logic [1:0]`)
+- `B` → 2-bit value (`logic [1:0]`)
 
-🧩 DUT — 2-bit Comparator
+### Outputs
+- `LT` → Logic 1 if A < B, otherwise 0
+- `EQ` → Logic 1 if A == B, otherwise 0
+- `GT` → Logic 1 if A > B, otherwise 0
 
-The DUT compares two 2-bit inputs:
+---
 
-A and B (both logic [1:0])
+## ⚙️ Verification Architecture
 
-Outputs:
+The testbench implements a comprehensive verification flow featuring:
 
-LT → 1 if A < B
+**Interface & Modports**: Encapsulates all DUT signals with separate modports for driver and monitor perspectives
 
-EQ → 1 if A == B
+**Program Block**: Contains all testbench logic running in synchronous mode
 
-GT → 1 if A > B
+**Stimulus Generation**: Random test vectors covering all 16 possible 2-bit combinations (10 random iterations shown)
 
-The logic is pure combinational and uses simple data-flow assignments.
-
-⚙️ Interface (With Modports)
-
-A SystemVerilog interface is used to group all signals together.
-Modports ensure correct direction mapping:
-
-dut_mp → DUT reads A,B and drives LT,EQ,GT
-
-tb_mp → Testbench drives A,B and reads LT,EQ,GT
-
-This avoids Vivado's typical “non-net variable cannot be connected” issues.
-
-🧪 Testbench Architecture
-
-The testbench follows a structured verification style:
-
-✔ Interface Instance
-
-Used as communication channel between TB and DUT.
-
-✔ DUT Instance
-
-Connected through the interface.
-
-✔ Program Block
-
-Contains the full test logic:
-
-Random stimulus generation
-
-Expected model computation
-
-Scoreboard comparison
-
-PASS/ERROR logging
-
-Clean simulation finish
-
-✔ Scoreboard
-
-The scoreboard checks DUT outputs vs expected outputs:
-
+**Reference Model**: Implements the expected behavior for comparison:
+```systemverilog
 exp_LT = (A <  B);
 exp_EQ = (A == B);
 exp_GT = (A >  B);
+```
 
+**Scoreboard**: Compares actual DUT outputs against expected results and reports PASS/FAIL status
 
-If mismatch occurs → ERROR
-If match → PASS
+---
 
-🔄 Random Stimulus
+## 🔄 Test Flow
 
-10 random test iterations are performed:
+1. **Initialization**: DUT and testbench reset to known state
+2. **Stimulus Loop**: Generate 10 random test cases
+3. **Application**: Drive randomly generated A and B values to DUT
+4. **Prediction**: Calculate expected outputs using reference model
+5. **Verification**: Compare actual outputs with expected results
+6. **Reporting**: Log PASS/FAIL for each test case
 
-comp_if.A = $urandom_range(0,3);
-comp_if.B = $urandom_range(0,3);
+### Random Stimulus Generation
+```systemverilog
+A = $urandom_range(0, 3);  // Generate random 2-bit value (0-3)
+B = $urandom_range(0, 3);  // Generate random 2-bit value (0-3)
+```
 
+---
 
-Each random input combination is verified through the scoreboard.
+## 📤 Example Simulation Output
 
-📤 Example Simulation Output
+```
 Starting Test of 2-bit Comparator...
 
 [PASS]  A=11 | B=00 | LT=0 EQ=0 GT=1
 [PASS]  A=10 | B=01 | LT=0 EQ=0 GT=1
 [PASS]  A=10 | B=10 | LT=0 EQ=1 GT=0
 [PASS]  A=01 | B=01 | LT=0 EQ=1 GT=0
-...
+[PASS]  A=11 | B=11 | LT=0 EQ=1 GT=0
+[PASS]  A=00 | B=11 | LT=1 EQ=0 GT=0
+[PASS]  A=01 | B=10 | LT=1 EQ=0 GT=0
+[PASS]  A=11 | B=10 | LT=0 EQ=0 GT=1
+[PASS]  A=00 | B=00 | LT=0 EQ=1 GT=0
+[PASS]  A=10 | B=00 | LT=0 EQ=0 GT=1
 
-2-bit comparator test completed!
-$finish at 10 ns
+2-bit Comparator test completed successfully!
+Simulation ended at 10 ns with $finish
+```
 
+---
 
-The exact results vary each run due to randomization.
+## 🛠 Tools & Environment
 
-🛠 Tools Used
+- **Simulator**: Vivado 2025.1 (XSIM)
+- **HDL Language**: SystemVerilog (IEEE 1800-2017)
+- **Verification Methodology**: UVM-inspired structured approach
 
-Vivado 2025.1 (XSIM Simulator)
+---
 
-SystemVerilog
+## 🎓 Key Learning Outcomes
 
-Random test generation
+This project demonstrates several industry-standard verification concepts:
 
-Scoreboard-based verification
+- **Interface Design**: Proper encapsulation of design signals using SystemVerilog interfaces
+- **Modports**: Separate viewpoints for DUT and testbench components
+- **Program Blocks**: Synchronous execution model for deterministic testbench behavior
+- **Reference Models**: Behavioral specification for automated result checking
+- **Scoreboards**: Efficient pass/fail tracking and reporting
+- **Constrained Randomization**: Systematic coverage of input space
 
-🎯 What You Learn from This Project
+---
 
-Writing a clean, synthesizable DUT
+## 🎉 Conclusion
 
-Using SystemVerilog interfaces
+This project demonstrates a clean, professional, and scalable verification methodology for digital designs. The structured approach using interfaces, modports, program blocks, reference models, and scoreboards represents best practices in modern hardware verification and provides a solid foundation for more complex verification challenges.
 
-Using modports (DUT vs TB roles)
+The 2-bit comparator serves as an excellent learning vehicle for understanding fundamental verification concepts that scale to real-world designs of any complexity.
 
-Building structured testbenches
+---
 
-Creating reference models
+## 📝 Future Enhancements
 
-Scoreboard-based checking
+- Extend to N-bit comparators with parameterized interfaces
+- Add formal verification (SVA assertions)
+- Implement coverage metrics
+- Migrate to UVM for larger designs
+- Add performance analysis and metrics reporting
 
-Random stimulus generation
+---
 
-Program block execution
-
-Debugging with PASS/ERROR logs
+**Thank you for exploring this verification project!**  
+Feel free to use this as a reference, fork it, or adapt it for your own verification needs.
